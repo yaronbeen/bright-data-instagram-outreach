@@ -30,13 +30,6 @@ from urllib.error import HTTPError, URLError
 # CONFIGURATION - Set your API key as an environment variable
 # ============================================================
 API_KEY = os.environ.get("BRIGHT_DATA_API_KEY", "")
-if not API_KEY:
-    print("ERROR: Set your Bright Data API key:")
-    print("  Windows:  set BRIGHT_DATA_API_KEY=your-api-key-here")
-    print("  Mac/Linux: export BRIGHT_DATA_API_KEY=your-api-key-here")
-    print()
-    print("Get your API key from: https://brightdata.com/cp/setting/users")
-    sys.exit(1)
 
 # Bright Data dataset ID
 PROFILES_DATASET_ID = "gd_l1vikfch901nx3by4"  # Instagram - Profiles
@@ -367,6 +360,14 @@ def extract_contact_info(profile_data):
 
 
 def main():
+    if not API_KEY:
+        print("ERROR: Set your Bright Data API key:")
+        print("  Windows:  set BRIGHT_DATA_API_KEY=your-api-key-here")
+        print("  Mac/Linux: export BRIGHT_DATA_API_KEY=your-api-key-here")
+        print()
+        print("Get your API key from: https://brightdata.com/cp/setting/users")
+        sys.exit(1)
+
     input_csv = sys.argv[1] if len(sys.argv) > 1 else None
     output_csv = sys.argv[2] if len(sys.argv) > 2 else "output_influencers.csv"
 

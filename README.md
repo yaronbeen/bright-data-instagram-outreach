@@ -255,6 +255,24 @@ This uses Bright Data's **Web Scraper API** with one Instagram dataset:
 
 Pricing depends on your Bright Data plan. A typical run with 50 profiles costs roughly a few cents.
 
+## Running Tests
+
+The project includes unit tests and end-to-end tests against the live Bright Data API.
+
+```bash
+# Install pytest (if not already installed)
+pip install pytest
+
+# Run unit tests only (no API key needed, runs in <1 second)
+pytest -m "not e2e" -v
+
+# Run everything including live API tests (requires API key, ~2-3 minutes)
+export BRIGHT_DATA_API_KEY=your-api-key-here
+pytest -v
+```
+
+E2E tests are automatically skipped when no API key is set.
+
 ## Disclaimer
 
 Some links in this README are affiliate links. If you sign up for Bright Data through them, you may get extra credits on your account, and I may receive a small commission. This doesn't cost you anything extra — it helps support the project.
