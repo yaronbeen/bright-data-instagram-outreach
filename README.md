@@ -273,9 +273,17 @@ pytest -v
 
 E2E tests are automatically skipped when no API key is set.
 
+## Need a custom scraper?
+
+If you need different Instagram profile fields or a scraping workflow this tool does not support, you can build your own with [Bright Data's Scraper Studio](https://brightdata.com/products/scraper-studio). Describe the Instagram data you need in plain English, and Scraper Studio generates a production-ready scraper with your exact output schema. It includes self-healing, so when Instagram changes its profile pages, you describe the fix and push a patch in minutes instead of rewriting extraction logic.
+
+## Free tier
+
+Every Bright Data account comes with 5,000 free credits per month (roughly $7.50 in value). Credits reset on the first of each month, and you can start without a credit card. That is enough to enrich a real batch of Instagram profiles, check the email extraction results, and decide whether this tool fits your outreach workflow.
+
 ## Disclaimer
 
-Some links in this README are affiliate links. If you sign up for Bright Data through them, you may get extra credits on your account, and I may receive a small commission. This doesn't cost you anything extra — it helps support the project.
+Some links in this README are affiliate links. If you sign up for Bright Data through them, you may get extra credits on your account, and I may receive a small commission. This doesn't cost you anything extra - it helps support the project.
 
 ## License
 
