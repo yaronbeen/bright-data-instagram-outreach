@@ -1,289 +1,95 @@
-# Instagram Profile Email Scraper
+# Instagram Profile Enrichment
 
-Enrich Instagram profiles at scale. Give it a list of usernames (or profile URLs), get back a CSV with emails, follower counts, bio links, and business info.
+Have a list of Instagram accounts but no quick way to compare their public profile details? This Python script sends usernames or profile URLs to Bright Data's Instagram Profiles dataset and returns one CSV row per result, including public bio, follower information, category, website/bio link, and any email text it can extract. It helps a marketer turn a manually curated shortlist into a reviewable research sheet; it does not discover accounts, verify that an email works, or decide who will respond.
 
-**Powered by [Bright Data](https://get.brightdata.com/1tndi4600b25) Instagram datasets.**
+## The useful outcome
 
-## What It Does
+Use this when you already have candidate creators, brands, or partners and want a consistent first-pass inventory before manually reviewing their fit and contact route.
 
-```
-Your Profiles List --> Bright Data Instagram API --> Scrape Profiles --> Extract Emails --> CSV File
-```
+Example (illustrative input and possible output, not a live scrape):
 
-1. You provide a list of Instagram usernames or profile URLs
-2. The script sends them to Bright Data's Instagram Profiles dataset
-3. Bright Data scrapes each profile for contact info (bio, email, links, followers)
-4. The script extracts email addresses and bio links using pattern matching
-5. Everything gets saved to a clean CSV file
-
-## Example Results
-
-Running with profiles `garyvee`, `hubspot`, `nike`, `natgeo`, `therock`:
-
-| Username | Followers   | Email | Bio Link    | Business |
-| -------- | ----------- | ----- | ----------- | -------- |
-| garyvee  | 10,100,000  | —     | garyvee.com | yes      |
-| hubspot  | 435,000     | —     | hubspot.com | yes      |
-| nike     | 304,000,000 | —     | nike.com    | yes      |
-| natgeo   | 283,000,000 | —     | natgeo.com  | yes      |
-| therock  | 395,000,000 | —     | therock.com | yes      |
-
-**From 5 profiles: 5 enriched, all business accounts identified.**
-
-Not every profile lists an email publicly. Typical results: **10-15% of profiles** will have an email in their bio. Business accounts and smaller creators are more likely to list contact info.
-
-## Requirements
-
-- **Python 3.9 or higher** (comes pre-installed on most Macs; [download for Windows](https://www.python.org/downloads/))
-- **Bright Data account** with API access ([sign up here](https://get.brightdata.com/1tndi4600b25) - you'll get extra credits when signing up through this link)
-- No extra libraries needed - uses only Python built-in modules
-
-## Setup (5 minutes)
-
-### Step 1: Get Your Bright Data API Key
-
-1. Log into [Bright Data](https://get.brightdata.com/1tndi4600b25)
-2. Go to **Settings > Account settings**
-3. Copy your **API token**
-
-### Step 2: Set Your API Key
-
-**On Windows** (Command Prompt):
-
-```
-set BRIGHT_DATA_API_KEY=your-api-key-here
-```
-
-**On Windows** (PowerShell):
-
-```
-$env:BRIGHT_DATA_API_KEY = "your-api-key-here"
-```
-
-**On Mac/Linux** (Terminal):
-
-```
-export BRIGHT_DATA_API_KEY=your-api-key-here
-```
-
-### Step 3: Prepare Your Profiles List
-
-Edit `profiles.csv` with any text editor (Notepad, TextEdit, etc.):
-
-```
+```csv
 username
-garyvee
-hubspot
-nike
-natgeo
-therock
+sample_coach
+sample_studio
 ```
 
-You can also use full URLs:
+The output contains the submitted accounts' returned profile fields. A marketer can then review whether the public category, bio, follower count, or website fits a campaign brief, and decide whether to investigate the listed contact route. An email found in a bio is only a lead to verify, not proof of permission, deliverability, or interest.
 
+## What it does and does not do
+
+- Enriches usernames, `@handles`, or profile URLs you provide.
+- Requests public profile data through Bright Data's Instagram Profiles dataset.
+- Extracts email-like strings from returned profile data and detects selected bio-link aggregators.
+- Writes a CSV; it does not rank fit, discover followers/hashtag audiences, validate email addresses, or send messages.
+- `apps_script.gs` is a separate, optional Google Sheets/Gmail sender. It can send actual email when a user runs it; inspect and test that script before use. The scraper itself never sends outreach.
+
+## Start here
+
+Requirements: Python 3.9+, internet access, and a Bright Data API token/account enabled for the Instagram Profiles dataset. The script uses Python's standard library; no `pip install` is needed. The key is read from the process environment as `BRIGHT_DATA_API_KEY`; there is no `.env` auto-loading.
+
+Linux/macOS:
+
+```bash
+export BRIGHT_DATA_API_KEY="your-key"
+python3 instagram_influencer_scraper.py profiles.csv output_influencers.csv
 ```
-url
-https://www.instagram.com/garyvee/
-https://www.instagram.com/hubspot/
-```
 
-Or mix both formats — the script auto-detects:
+PowerShell:
 
-```
-profile
-garyvee
-https://www.instagram.com/hubspot/
-@nike
-```
-
-## How to Run
-
-Open your terminal/command prompt, navigate to this folder, and run:
-
-```
+```powershell
+$env:BRIGHT_DATA_API_KEY = "your-key"
 python instagram_influencer_scraper.py profiles.csv output_influencers.csv
 ```
 
-Or simply:
+Create `profiles.csv` with a header and one account per row:
 
-```
-python instagram_influencer_scraper.py
-```
-
-This uses the built-in default profiles and saves to `output_influencers.csv`.
-
-### What You'll See
-
-```
-[1/5] Reading profiles from profiles.csv
-  Profiles to enrich: 6
-    garyvee
-    hubspot
-    nike
-    natgeo
-    therock
-    chfrankgrillo
-
-[2/5] Triggering Bright Data Instagram Profiles collection...
-  Username-based profiles: 6
-  Triggering collection with 6 input(s)...
-  Snapshot ID: sd_abc123xyz
-
-[3/5] Waiting for collection(s) to complete (this may take 2-5 minutes)...
-  Status: running (0s elapsed)
-  Status: ready (15s elapsed)
-  Downloading results...
-  Got 6 results (5 profiles, 1 errors)
-
-[4/5] Extracting contact info from 6 profiles...
-  Enriched 5 profiles
-  Emails found: 0
-  Business accounts: 5
-
-[5/5] Writing output to output_influencers.csv...
-
-Done! 5 profiles written to output_influencers.csv
-  Profiles with emails: 0
-  Total unique emails: 0
-  Business accounts: 5
+```csv
+username
+sample_coach
+https://www.instagram.com/sample_studio/
 ```
 
-## Output CSV Format
+The command accepts an input path and optional output path. If no input path is supplied, the script uses its built-in example account list and writes `output_influencers.csv`; that list is for demonstration, not a recommendation. Use a valid input file because an invalid/missing path falls back to defaults.
 
-The output file has these columns:
+## Output
 
-| Column            | Description                                                         |
-| ----------------- | ------------------------------------------------------------------- |
-| `profile_url`     | Link to the Instagram profile                                       |
-| `username`        | Instagram handle                                                    |
-| `full_name`       | Display name                                                        |
-| `followers`       | Follower count                                                      |
-| `following`       | Following count                                                     |
-| `posts_count`     | Number of posts                                                     |
-| `is_business`     | Whether it's a business/professional account                        |
-| `is_verified`     | Blue checkmark status                                               |
-| `is_private`      | Whether the account is private                                      |
-| `engagement_rate` | Average engagement rate (if available)                              |
-| `biography`       | Bio text (first 500 characters)                                     |
-| `email`           | Extracted email address(es), if found                               |
-| `bio_link`        | External URL from bio (linktr.ee, website, etc.)                    |
-| `category`        | Business category (e.g., "Fitness", "Food & Beverage", "Marketing") |
+The CSV columns are `profile_url`, `username`, `full_name`, `followers`, `following`, `posts_count`, `is_business`, `is_verified`, `is_private`, `engagement_rate`, `biography`, `email`, `bio_link`, and `category`. Bio text is limited to 500 characters. Fields may be blank or unavailable depending on what the dataset returns. Email extraction is pattern matching against returned profile fields; it cannot confirm ownership or mailbox validity.
 
-## How Email Extraction Works
+## Cost and data handling
 
-The script checks two sources for each profile:
+This makes a live Bright Data collection request for the accounts in your file. Charges, available credits, dataset access, and delivered fields depend on your Bright Data account and current pricing. Check the [Web Scraper pricing page](https://brightdata.com/pricing/web-scraper) and your account before a live run; this repository does not guarantee a fixed per-run cost. The tool does not log in to Instagram. Use public data responsibly, follow platform terms and applicable privacy/marketing laws, and retain only data you have a legitimate reason to use.
 
-1. **`email_address` field** — Bright Data extracts this directly from the profile if publicly available
-2. **Biography text** — regex scans the bio for email patterns like `anything@something.domain`
+## Optional email sending
 
-This catches formats like:
+`apps_script.gs` is independent of the Python scraper. It can send email through the Google account that authorizes the script. Its sheet expects columns A-F in this order: `profile_name`, `email`, `followers`, `subject`, `body`, `status` (tab name defaults to `Sheet1`). Review recipients and message content yourself. The script includes a test-email menu item, a next-five option, and a 45-second pause; those safeguards are not a substitute for consent, compliance, or deliverability controls. Do not select bulk sending until you have reviewed the sheet and tested the script.
 
-- `business@example.com`
-- `contact.us@company.co.uk`
-- `name+tag@domain.org`
+## Tests
 
-**False positives are filtered out** — the script ignores patterns like image filenames (.png, .jpg), noreply addresses, and placeholder emails.
-
-## Bio Link Detection
-
-The script also detects **link aggregator** URLs in bios:
-
-- linktr.ee, beacons.ai, bio.link, tap.bio
-- lnk.bio, campsite.bio, stan.store, solo.to
-- And many more
-
-These bio links often lead to additional contact info, booking pages, or media kits.
-
-## Where to Get Profiles
-
-This tool enriches a list you already have. Here are common ways to build that list:
-
-- **Competitor followers** — browse a competitor's followers list and copy usernames
-- **Hashtag browsing** — search hashtags on Instagram and note active creators
-- **Creator databases** — export from tools like Modash, HypeAuditor, or Upfluence
-- **Google search** — search `site:instagram.com "your niche"` to find profiles
-- **Manual curation** — build a targeted list of creators you want to work with
-
-## Sending Emails (Google Apps Script)
-
-The `apps_script.gs` file is a Google Apps Script that sends personalized outreach emails directly from Google Sheets.
-
-### Setup
-
-1. Create a Google Sheet with columns: `profile_name`, `email`, `followers`, `subject`, `body`, `status`
-2. Import your scraped data into the sheet
-3. Go to **Extensions > Apps Script**
-4. Paste the contents of `apps_script.gs`
-5. Save and refresh the sheet
-6. Use the new **Outreach** menu to send emails
-
-### Features
-
-- Send all pending, or just the next 5
-- Send a test email to yourself first
-- 45-second delay between emails (avoids spam flags)
-- DRY_RUN mode for testing
-- Tracks sent/error/skipped status per row
-- Check remaining Gmail quota
-
-## Tips
-
-- **Batch your profiles**: The script handles any number of profiles in one run
-- **Business accounts are gold**: They're more likely to have public contact info
-- **Smaller creators respond more**: Profiles with 10K-100K followers have the highest reply rates
-- **Check bio links**: Even without an email, bio links often lead to contact pages
-- **Runs are fast**: Typical enrichment takes 1-2 minutes for ~50 profiles
-- **No rate limits to worry about**: Bright Data handles all the scraping infrastructure
-
-## Troubleshooting
-
-| Problem                               | Solution                                                               |
-| ------------------------------------- | ---------------------------------------------------------------------- |
-| `ERROR: Set your Bright Data API key` | You forgot to set the environment variable (see Setup Step 2)          |
-| `HTTP 401`                            | Your API key is wrong or expired                                       |
-| `HTTP 400`                            | Check that your Bright Data account has the Instagram datasets enabled |
-| `Collection timed out`                | Try with fewer profiles or check your internet connection              |
-| Script hangs at "Triggering..."       | The API call can take 30-60 seconds, this is normal                    |
-| Profile shows as error                | The username might be misspelled or the account might be deleted       |
-| No emails found                       | Normal for many profiles — try smaller creators or check bio links     |
-
-## Cost
-
-This uses Bright Data's **Web Scraper API** with one Instagram dataset:
-
-- **Instagram Profiles** dataset: scrapes profile details, contact info, and bio data
-
-Pricing depends on your Bright Data plan. A typical run with 50 profiles costs roughly a few cents.
-
-## Running Tests
-
-The project includes unit tests and end-to-end tests against the live Bright Data API.
+The repository includes local helper tests and live end-to-end tests. Local tests need pytest but no API key:
 
 ```bash
-# Install pytest (if not already installed)
-pip install pytest
-
-# Run unit tests only (no API key needed, runs in <1 second)
-pytest -m "not e2e" -v
-
-# Run everything including live API tests (requires API key, ~2-3 minutes)
-export BRIGHT_DATA_API_KEY=your-api-key-here
-pytest -v
+python3 -m pip install pytest
+python3 -m pytest -m "not e2e" -v
 ```
 
-E2E tests are automatically skipped when no API key is set.
+Live tests make Bright Data requests and may incur account usage. They are skipped when no `BRIGHT_DATA_API_KEY` is set:
 
-## Need a custom scraper?
+```bash
+python3 -m pytest -v
+```
 
-If you need different Instagram profile fields or a scraping workflow this tool does not support, you can build your own with [Bright Data's Scraper Studio](https://brightdata.com/products/scraper-studio). Describe the Instagram data you need in plain English, and Scraper Studio generates a production-ready scraper with your exact output schema. It includes self-healing, so when Instagram changes its profile pages, you describe the fix and push a patch in minutes instead of rewriting extraction logic.
+## FAQ
 
-## Free tier
+**Does it find Instagram creators for me?** No. Bring your own list; this enriches those profiles only.
 
-Every Bright Data account comes with 5,000 free credits per month (roughly $7.50 in value). Credits reset on the first of each month, and you can start without a credit card. That is enough to enrich a real batch of Instagram profiles, check the email extraction results, and decide whether this tool fits your outreach workflow.
+**Will every row include an email?** No. It only extracts an email if one appears in data returned for that profile. A blank field is a normal outcome.
 
-## Disclaimer
+**Does it verify emails or estimate reply rates?** No. Neither mailbox validity nor response likelihood is measured.
 
-Some links in this README are affiliate links. If you sign up for Bright Data through them, you may get extra credits on your account, and I may receive a small commission. This doesn't cost you anything extra - it helps support the project.
+**Can I run it without Bright Data?** You can inspect the code and run unit tests locally, but profile collection requires the API and an eligible dataset account.
+
+**Is there a fixed cost?** No fixed amount is promised here. Check current pricing and account billing before collecting.
 
 ## License
 
